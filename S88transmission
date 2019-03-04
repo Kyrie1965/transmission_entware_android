@@ -1,0 +1,32 @@
+#!/bin/sh
+
+if [ "$1" == "start" ]
+then
+  DIR_DL=""
+
+  for i in $(seq 1 6); do
+    for d in /mnt/media_rw/*; do
+      if [ -d "${d}/Torrents" ]; then
+        DIR_DL="${d}/Torrents"
+        S_STR="    \"download-dir\": \"${DIR_DL}\","
+        sed -i "/download-dir/c\\${S_STR}" /opt/etc/transmission/settings.json
+        break
+      fi
+    done
+    [ ! -z "${DIR_DL}" ] && break
+    sleep 5
+  done
+
+  [ -z "${DIR_DL}" ] && exit 0
+fi
+
+ENABLED=yes
+PROCS=transmission-daemon
+ARGS="-g /opt/etc/transmission"
+PREARGS=""
+DESC=$PROCS
+PATH=/opt/sbin:/opt/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+TRANSMISSION_WEB_HOME="/opt/share/transmission/web"
+
+. /opt/etc/init.d/rc.func
